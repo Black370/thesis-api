@@ -11,7 +11,7 @@ const app = express();
 // --- 1. ENTERPRISE CORS CONFIGURATION ---
 const allowedOrigins = [
     'http://localhost:5173',
-    'https://black370.github.io/thesis-portal'
+    'https://black370.github.io'
 ];
 
 app.use(cors({
