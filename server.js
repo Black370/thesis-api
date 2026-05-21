@@ -10,7 +10,6 @@ const app = express();
 
 // --- 1. ENTERPRISE CORS CONFIGURATION ---
 const allowedOrigins = [
-    'http://localhost:5173',
     'https://black370.github.io'
 ];
 
@@ -114,7 +113,7 @@ app.get('/api/data', authenticateToken, async (req, res) => {
 
         res.json({
             // Note: Change 'official_id' to 'id' here if your Neon DB uses 'id' as the column name
-            users: users.rows.map(u => ({ username: u.username, role: u.role, name: u.name, id: u.official_id })),
+            users: users.rows.map(u => ({ username: u.username, role: u.role, name: u.name, id: u.official_id || u.id || "Error: Missing ID" })),
             classes: classes.rows,
             topics: topics.rows.map(t => ({ id: t.id, classId: t.class_id, title: t.title, isArchived: t.is_archived })),
             classAccess: access.rows.map(a => ({ student: a.student, classId: a.class_id, status: a.status })),
