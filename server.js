@@ -70,6 +70,7 @@ app.post('/api/login', async (req, res) => {
         res.cookie('access_token', accessToken, { ...cookieConfig, maxAge: 15 * 60 * 1000 });
         res.cookie('refresh_token', refreshToken, { ...cookieConfig, maxAge: 7 * 24 * 60 * 60 * 1000 });
 
+        // Note: Change 'official_id' to 'id' here if your Neon DB uses 'id' as the column name
         res.json({ user: { username: user.username, role: user.role, name: user.name, id: user.official_id } });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -112,6 +113,7 @@ app.get('/api/data', authenticateToken, async (req, res) => {
         const registrations = await pool.query('SELECT * FROM registrations');
 
         res.json({
+            // Note: Change 'official_id' to 'id' here if your Neon DB uses 'id' as the column name
             users: users.rows.map(u => ({ username: u.username, role: u.role, name: u.name, id: u.official_id })),
             classes: classes.rows,
             topics: topics.rows.map(t => ({ id: t.id, classId: t.class_id, title: t.title, isArchived: t.is_archived })),
@@ -123,6 +125,7 @@ app.get('/api/data', authenticateToken, async (req, res) => {
     }
 });
 
+// PAGINATION ROUTE WITH ID MAPPING FIX
 app.get('/api/users/paginated', authenticateToken, async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5;
@@ -134,11 +137,22 @@ app.get('/api/users/paginated', authenticateToken, async (req, res) => {
         const totalPages = Math.ceil(totalItems / limit);
 
         const result = await pool.query(
+            // Note: Change 'official_id' to 'id' here if your Neon DB uses 'id' as the column name
             'SELECT username, role, name, official_id FROM users ORDER BY username LIMIT $1 OFFSET $2',
             [limit, offset]
         );
 
-        res.json({ users: result.rows, currentPage: page, totalPages: totalPages, totalItems: totalItems });
+        res.json({
+            users: result.rows.map(u => ({
+                username: u.username,
+                role: u.role,
+                name: u.name,
+                id: u.official_id // <-- Translates DB column so React can read it
+            })),
+            currentPage: page,
+            totalPages: totalPages,
+            totalItems: totalItems
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
