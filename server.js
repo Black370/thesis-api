@@ -10,7 +10,7 @@ const app = express();
 
 // --- 1. ENTERPRISE CORS CONFIGURATION ---
 const allowedOrigins = [
-    'https://black370.github.io'
+    'https://thesis-portal-ochre.vercel.app'
 ];
 
 app.use(cors({
